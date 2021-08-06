@@ -47,39 +47,39 @@
 enum tlsf_private
 {
 #if defined (TLSF_64BIT)
-	/* All allocation sizes and addresses are aligned to 8 bytes. */
-	ALIGN_SIZE_LOG2 = 3,
+    /* All allocation sizes and addresses are aligned to 8 bytes. */
+    ALIGN_SIZE_LOG2 = 3,
 #else
-	/* All allocation sizes and addresses are aligned to 4 bytes. */
-	ALIGN_SIZE_LOG2 = 2,
+    /* All allocation sizes and addresses are aligned to 4 bytes. */
+    ALIGN_SIZE_LOG2 = 2,
 #endif
-	ALIGN_SIZE = (1 << ALIGN_SIZE_LOG2),
+    ALIGN_SIZE = ( 1 << ALIGN_SIZE_LOG2 ),
 
-	/*
-	** We support allocations of sizes up to (1 << FL_INDEX_MAX) bits.
-	** However, because we linearly subdivide the second-level lists, and
-	** our minimum size granularity is 4 bytes, it doesn't make sense to
-	** create first-level lists for sizes smaller than SL_INDEX_COUNT * 4,
-	** or (1 << (SL_INDEX_COUNT_LOG2 + 2)) bytes, as there we will be
-	** trying to split size ranges into more slots than we have available.
-	** Instead, we calculate the minimum threshold size, and place all
-	** blocks below that size into the 0th first-level list.
-	*/
+    /*
+    ** We support allocations of sizes up to (1 << FL_INDEX_MAX) bits.
+    ** However, because we linearly subdivide the second-level lists, and
+    ** our minimum size granularity is 4 bytes, it doesn't make sense to
+    ** create first-level lists for sizes smaller than SL_INDEX_COUNT * 4,
+    ** or (1 << (SL_INDEX_COUNT_LOG2 + 2)) bytes, as there we will be
+    ** trying to split size ranges into more slots than we have available.
+    ** Instead, we calculate the minimum threshold size, and place all
+    ** blocks below that size into the 0th first-level list.
+    */
 
 #if defined (TLSF_64BIT)
-	/*
-	** TODO: We can increase this to support larger sizes, at the expense
-	** of more overhead in the TLSF structure.
-	*/
-	FL_INDEX_MAX = 32,
+    /*
+    ** TODO: We can increase this to support larger sizes, at the expense
+    ** of more overhead in the TLSF structure.
+    */
+    FL_INDEX_MAX = 32,
 #else
-	FL_INDEX_MAX = 30,
+    FL_INDEX_MAX = 30,
 #endif
-	SL_INDEX_COUNT = (1 << SL_INDEX_COUNT_LOG2),
-	FL_INDEX_SHIFT = (SL_INDEX_COUNT_LOG2 + ALIGN_SIZE_LOG2),
-	FL_INDEX_COUNT = (FL_INDEX_MAX - FL_INDEX_SHIFT + 1),
+    SL_INDEX_COUNT = ( 1 << SL_INDEX_COUNT_LOG2 ),
+    FL_INDEX_SHIFT = ( SL_INDEX_COUNT_LOG2 + ALIGN_SIZE_LOG2 ),
+    FL_INDEX_COUNT = ( FL_INDEX_MAX - FL_INDEX_SHIFT + 1 ),
 
-	SMALL_BLOCK_SIZE = (1 << FL_INDEX_SHIFT),
+    SMALL_BLOCK_SIZE = ( 1 << FL_INDEX_SHIFT ),
 };
 
 /*
@@ -98,29 +98,29 @@ enum tlsf_private
 */
 typedef struct block_header_t
 {
-	/* Points to the previous physical block. */
-	struct block_header_t* prev_phys_block;
+    /* Points to the previous physical block. */
+    struct block_header_t* prev_phys_block;
 
-	/* The size of this block, excluding the block header. */
-	size_t size;
+    /* The size of this block, excluding the block header. */
+    size_t size;
 
-	/* Next and previous free blocks. */
-	struct block_header_t* next_free;
-	struct block_header_t* prev_free;
+    /* Next and previous free blocks. */
+    struct block_header_t* next_free;
+    struct block_header_t* prev_free;
 } block_header_t;
 
 /* The TLSF control structure. */
 typedef struct control_t
 {
-	/* Empty lists point at this block to indicate they are free. */
-	block_header_t block_null;
+    /* Empty lists point at this block to indicate they are free. */
+    block_header_t block_null;
 
-	/* Bitmaps for free lists. */
-	unsigned int fl_bitmap;
-	unsigned int sl_bitmap[FL_INDEX_COUNT];
+    /* Bitmaps for free lists. */
+    unsigned int fl_bitmap;
+    unsigned int sl_bitmap[FL_INDEX_COUNT];
 
-	/* Head of free lists. */
-	block_header_t* blocks[FL_INDEX_COUNT][SL_INDEX_COUNT];
+    /* Head of free lists. */
+    block_header_t* blocks[FL_INDEX_COUNT][SL_INDEX_COUNT];
 } control_t;
 
 
@@ -134,38 +134,38 @@ typedef void* tlsf_t;
 typedef void* pool_t;
 
 /* Create/destroy a memory pool. */
-tlsf_t tlsf_create(void* mem);
-tlsf_t tlsf_create_with_pool(void* mem, size_t bytes);
-void tlsf_destroy(tlsf_t tlsf);
-pool_t tlsf_get_pool(tlsf_t tlsf);
+tlsf_t tlsf_create( void* mem );
+tlsf_t tlsf_create_with_pool( void* mem, size_t bytes );
+void tlsf_destroy( tlsf_t tlsf );
+pool_t tlsf_get_pool( tlsf_t tlsf );
 
 /* Add/remove memory pools. */
-pool_t tlsf_add_pool(tlsf_t tlsf, void* mem, size_t bytes);
-void tlsf_remove_pool(tlsf_t tlsf, pool_t pool);
+pool_t tlsf_add_pool( tlsf_t tlsf, void* mem, size_t bytes );
+void tlsf_remove_pool( tlsf_t tlsf, pool_t pool );
 
 /* malloc/memalign/realloc/free replacements. */
-void* tlsf_malloc(tlsf_t tlsf, size_t bytes);
-void* tlsf_memalign(tlsf_t tlsf, size_t align, size_t bytes);
-void* tlsf_realloc(tlsf_t tlsf, void* ptr, size_t size);
-void tlsf_free(tlsf_t tlsf, void* ptr);
+void* tlsf_malloc( tlsf_t tlsf, size_t bytes );
+void* tlsf_memalign( tlsf_t tlsf, size_t align, size_t bytes );
+void* tlsf_realloc( tlsf_t tlsf, void* ptr, size_t size );
+void tlsf_free( tlsf_t tlsf, void* ptr );
 
 /* Returns internal block size, not original request size */
-size_t tlsf_block_size(void* ptr);
+size_t tlsf_block_size( void* ptr );
 
 /* Overheads/limits of internal structures. */
-size_t tlsf_size(void);
-size_t tlsf_align_size(void);
-size_t tlsf_block_size_min(void);
-size_t tlsf_block_size_max(void);
-size_t tlsf_pool_overhead(void);
-size_t tlsf_alloc_overhead(void);
+size_t tlsf_size( void );
+size_t tlsf_align_size( void );
+size_t tlsf_block_size_min( void );
+size_t tlsf_block_size_max( void );
+size_t tlsf_pool_overhead( void );
+size_t tlsf_alloc_overhead( void );
 
 /* Debugging. */
-typedef void (*tlsf_walker)(void* ptr, size_t size, int used, void* user);
-void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user);
+typedef void ( *tlsf_walker )( void* ptr, size_t size, int used, void* user );
+void tlsf_walk_pool( pool_t pool, tlsf_walker walker, void* user );
 /* Returns nonzero if any internal consistency check fails. */
-int tlsf_check(tlsf_t tlsf);
-int tlsf_check_pool(pool_t pool);
+int tlsf_check( tlsf_t tlsf );
+int tlsf_check_pool( pool_t pool );
 
 #if defined(__cplusplus)
 };

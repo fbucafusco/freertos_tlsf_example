@@ -48,11 +48,11 @@ task.h is included from an application file. */
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #if( configSUPPORT_DYNAMIC_ALLOCATION == 0 )
-	#error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
+#error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
 #endif
 
 /* Allocate the memory for the heap. */
-static uint8_t ucHeap[ configTOTAL_HEAP_SIZE + sizeof(control_t) ];
+static uint8_t ucHeap[ configTOTAL_HEAP_SIZE + sizeof( control_t ) ];
 static tlsf_t  tlsf_hnd;
 
 void prvHeapInit();
@@ -61,61 +61,61 @@ void prvHeapInit();
 
 void *pvPortMalloc( size_t xWantedSize )
 {
-	void *pvReturn;
+    void *pvReturn;
 
-	vTaskSuspendAll();
-	{
-		/* If this is the first call to malloc  */
+    vTaskSuspendAll();
+    {
+        /* If this is the first call to malloc  */
 
-        control_t* control = (control_t*) ucHeap;
+        control_t* control = ( control_t* ) ucHeap;
 
-		if( control->block_null.next_free == NULL )
-		{
-			prvHeapInit();
-		}
-		else
-		{
-			mtCOVERAGE_TEST_MARKER();
-		}
+        if( control->block_null.next_free == NULL )
+        {
+            prvHeapInit();
+        }
+        else
+        {
+            mtCOVERAGE_TEST_MARKER();
+        }
 
 
-		pvReturn = tlsf_malloc( tlsf_hnd , xWantedSize );
-		traceMALLOC( pvReturn, xWantedSize );
-	}
+        pvReturn = tlsf_malloc( tlsf_hnd, xWantedSize );
+        traceMALLOC( pvReturn, xWantedSize );
+    }
 
-	( void ) xTaskResumeAll();
+    ( void ) xTaskResumeAll();
 
-	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
-	{
-		if( pvReturn == NULL )
-		{
-			extern void vApplicationMallocFailedHook( void );
-			vApplicationMallocFailedHook();
-		}
-	}
-	#endif
+#if( configUSE_MALLOC_FAILED_HOOK == 1 )
+    {
+        if( pvReturn == NULL )
+        {
+            extern void vApplicationMallocFailedHook( void );
+            vApplicationMallocFailedHook();
+        }
+    }
+#endif
 
-	return pvReturn;
+    return pvReturn;
 }
 
 /*-----------------------------------------------------------*/
 void vPortFree( void *pv )
 {
-	if( pv )
-	{
-		vTaskSuspendAll();
-		{
-			tlsf_free( tlsf_hnd, pv );
-			traceFREE( pv, 0 );
-		}
+    if( pv )
+    {
+        vTaskSuspendAll();
+        {
+            tlsf_free( tlsf_hnd, pv );
+            traceFREE( pv, 0 );
+        }
 
-		( void ) xTaskResumeAll();
-	}
+        ( void ) xTaskResumeAll();
+    }
 }
 
 /*-----------------------------------------------------------*/
 void prvHeapInit()
 {
-  tlsf_hnd = tlsf_create_with_pool( ucHeap , configTOTAL_HEAP_SIZE + sizeof(control_t) );
+    tlsf_hnd = tlsf_create_with_pool( ucHeap, configTOTAL_HEAP_SIZE + sizeof( control_t ) );
 }
 
