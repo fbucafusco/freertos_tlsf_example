@@ -8,7 +8,7 @@ It uses a modified version of [TLSF](https://github.com/mattconte/tlsf) where I 
 
 # Enviroment
 
-This examples runs on [Firmware v3](https://github.com/epernia/firmware_v3).
+This examples runs on [Firmware v3](https://github.com/epernia/firmware_v3) on EDUCIAA.
 
 # Tweaks
 
