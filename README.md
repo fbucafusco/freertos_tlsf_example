@@ -1,6 +1,6 @@
 # FreeRTOS + TLSF memory management example.
 
-This example aims to replace FreeRTOS heap4 memory management sheme with TLSF.
+This example aims to replace FreeRTOS heap4 memory management scheme with TLSF.
 
 It introduce a new malloc and free wrapper called heap6.c + heap6.h.
 
