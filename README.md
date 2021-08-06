@@ -2,7 +2,7 @@
 
 This example aims to replace FreeRTOS heap4 memory management scheme with TLSF.
 
-It introduce a new malloc and free wrapper called heap6.c + heap6.h.
+It introduces a new malloc and free wrapper called heap6.c + heap6.h.
 
 It uses a modified version of [TLSF](https://github.com/mattconte/tlsf) where I move all configurations to tlsf_config.h and did some private definitions, public.
 
