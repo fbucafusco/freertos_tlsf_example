@@ -66,9 +66,9 @@ int main(void)
 
    // UART for debug messages
    debugPrintConfigUart( UART_USB, 115200 );
-   debugPrintlnString( "Blinky con freeRTOS y sAPI." );
+   debugPrintlnString( "Blinky con freeRTOS y sAPI usando TLSF como algoritmo para alocar memoria dinamicamente." );
 
-   // Led para dar se�al de vida
+   // Led para dar señal de vida
    gpioWrite( LED3, ON );
 
    // Crear tarea en freeRTOS
